@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Police Complaint Documentation System | AI-Assisted CSR Registration</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- =======================================================
+       POLICE HEADER & REAL-TIME STATUS BAR
+       ======================================================= -->
+  <header class="police-header">
+    <div class="header-inner">
+      <div class="police-branding">
+        <div class="police-insignia">🛡️</div>
+        <div class="brand-text">
+          <h1>Police Complaint Documentation System</h1>
+          <p>{{ district_name }} • {{ station_name }}</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="badge badge-ai" title="Active Intelligence Engine">
+          <span class="indicator-dot"></span>
+          <span id="activeAiEngineBadge">AI Engine Initializing...</span>
+        </div>
+        <div class="badge badge-time" id="systemClock">--:--:--</div>
+        <a href="/history" class="nav-link-btn" title="View Saved Police Records">
+          📋 Saved Records & CSR Archive
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- =======================================================
+       3-COLUMN PRODUCTION WORKSPACE
+       ======================================================= -->
+  <main class="main-wrapper">
+    <div class="three-column-grid right-hidden" id="mainGridContainer">
+
+      <!-- =====================================================
+           LEFT COLUMN: NAVIGATION & STANDARD SECTION TEMPLATES
+           ===================================================== -->
+      <aside class="col-left">
+        
+        <!-- Station Writer Session Status Card -->
+        <div class="police-card">
+          <div class="card-header navy-header">
+            <h2>📌 Station Duty Desk</h2>
+          </div>
+          <div class="card-body">
+            <div class="station-status-panel">
+              <div class="status-row">
+                <span class="status-label">Duty Writer:</span>
+                <span class="status-val" id="activeWriterBadge">Loading...</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Jurisdiction:</span>
+                <span class="status-val">Division-I Crime</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Current Ref ID:</span>
+                <span class="status-val" id="activeRefIdBadge" style="color: #1e3a8a;">POL-NEW-DRAFT</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">System Mode:</span>
+                <span class="status-val" style="color: #16a34a;">0% Hallucination Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic AI Recommended Legal & Procedural Sections -->
+        <div class="police-card dynamic-sections-card">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>⚖️ Recommended Legal Sections</h3>
+            <span id="dynamicSectionCountBadge" class="badge-count" style="font-size: 0.68rem; background: #1e3a8a; color: #fff; padding: 2px 7px; border-radius: 10px;">0 Active</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size: 0.72rem; color: #64748b; margin-bottom: 8px;">
+              AI-recommended statutory provisions &amp; procedural clauses based on citizen narrative. Click <strong>Insert</strong> or <strong>drag card into draft</strong>:
+            </p>
+
+            <!-- Container for dynamically rendered section cards -->
+            <div id="dynamicSectionsContainer" class="dynamic-sections-container">
+              <!-- Empty-State Placeholder before FIND / extraction -->
+              <div id="emptySectionsPlaceholder" class="empty-sections-placeholder">
+                <div class="empty-icon">⚖️</div>
+                <div class="empty-title">No Case Analyzed Yet</div>
+                <div class="empty-desc">
+                  Start an audio intake session or record a statement and click <strong>FIND</strong>. The AI will dynamically analyze the offence and recommend applicable BNS 2023, BNSS, and IT Act sections here.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statutory Notice Card -->
+        <div class="police-card">
+          <div class="card-body">
+            <div class="legal-notice-box">
+              <strong>⚖️ Statutory Factuality Notice</strong>
+              The system preserves citizen statements verbatim and extracts facts without assumptions. Under Section 217 Bharatiya Nyaya Sanhita (BNS), lodging false or misleading complaints is punishable by law.
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- =====================================================
+           CENTER COLUMN: CRITICAL 3-PART VERTICAL LAYOUT
+           ===================================================== -->
+      <section class="col-center">
+
+        <!-- PART 1: STATION WRITER DETAILS -->
+        <div class="police-card part-card part1-writer-card">
+          <div class="card-header navy-header flex-between">
+            <h2><span class="part-badge">Part 1</span> Station Writer Details & Attestation</h2>
+            <span class="header-sub-tag">Duty Officer Verification</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="writerName">Station Duty Writer Name *</label>
+                <input type="text" id="writerName" class="form-control" placeholder="e.g. HC R. Balaji" required>
+              </div>
+              <div class="form-group">
+                <label for="writerId">Station Writer Badge ID *</label>
+                <input type="text" id="writerId" class="form-control" placeholder="e.g. HC-4029" required>
+              </div>
+            </div>
+
+            <!-- Writer Digital Signature Pad & Station Seal Row -->
+            <div class="writer-attestation-grid">
+              
+              <!-- HTML5 Canvas Signature Pad for Writer/Officer -->
+              <div class="attestation-col">
+                <label class="section-sub-label">Station Writer Digital Signature Pad *</label>
+                <div class="canvas-container writer-canvas-box">
+                  <canvas id="writerSignatureCanvas"></canvas>
+                </div>
+                <div class="canvas-toolbar">
+                  <div class="canvas-actions">
+                    <button type="button" id="btnClearWriterSig" class="btn-canvas" onclick="clearWriterSignature()">Clear Pad</button>
+                    <button type="button" id="btnUndoWriterSig" class="btn-canvas" onclick="undoWriterSignature()">Undo</button>
+                  </div>
+                  <span id="writerCanvasStatus" class="canvas-status">Sign with stylus, mouse, or touch</span>
+                </div>
+              </div>
+
+              <!-- Visual Station Seal Container / Upload Placeholder -->
+              <div class="attestation-col">
+                <label class="section-sub-label">Official Police Station Seal Verification</label>
+                <div class="station-seal-container" id="stationSealContainer">
+                  <div class="seal-emblem-badge" id="sealEmblemPreview">
+                    <div class="seal-star-icon">🛡️</div>
+                    <div class="seal-title-text">TAMIL NADU POLICE</div>
+                    <div class="seal-sub-text" id="sealStationLabel">CENTRAL POLICE STATION</div>
+                    <div class="seal-div-text">DIV-I CRIME & LAW & ORDER</div>
+                    <div class="seal-stamp-verified">OFFICIALLY ATTESTED</div>
+                  </div>
+                  <div class="seal-action-row">
+                    <label for="sealFileInput" class="btn-seal-upload" title="Upload custom station stamp/seal image">
+                      📁 Upload Custom Seal
+                    </label>
+                    <input type="file" id="sealFileInput" accept="image/*" style="display: none;" onchange="handleSealUpload(event)">
+                    <span class="seal-badge-status" id="sealBadgeStatus">✓ Division Seal Active</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- PART 2: COMPLAINANT INFORMATION FORM -->
+        <div class="police-card part-card part2-complainant-card">
+          <div class="card-header navy-header flex-between">
+            <h2><span class="part-badge">Part 2</span> Complainant Information Form</h2>
+            <span class="header-sub-tag">Citizen Identity & Contact Details</span>
+          </div>
+          <div class="card-body">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="complainantName">Complainant Full Name *</label>
+                <input type="text" id="complainantName" class="form-control" placeholder="Enter citizen full name (e.g. K. Muthu)" required>
+              </div>
+              <div class="form-group">
+                <label for="fatherName">Father's / Spouse Name</label>
+                <input type="text" id="fatherName" class="form-control" placeholder="e.g. S. Karuppan">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="contactNumber">Contact Phone Number *</label>
+                <input type="tel" id="contactNumber" class="form-control" placeholder="Enter 10-digit mobile number (e.g. 9876543210)">
+              </div>
+              <div class="form-group">
+                <label for="aadhaarNumber">
+                  Government ID / Aadhaar Number
+                  <span class="privacy-badge" title="Protected under Aadhaar Act 2016">[Privacy Masked]</span>
+                </label>
+                <div class="aadhaar-input-box">
+                  <input type="text" id="aadhaarNumber" class="form-control font-mono" placeholder="XXXX-XXXX-1234 (Auto-masked)" maxlength="14" oninput="formatAadhaarInput(this)">
+                  <span class="mask-status-tag" id="aadhaarMaskTag">Aadhaar Redacted</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 4px;">
+              <label for="residentialAddress">Residential Address</label>
+              <input type="text" id="residentialAddress" class="form-control" placeholder="House No., Street Name, Landmark, Area/Town, District (e.g. No. 14, Gandhi Street, George Town, Chennai - 600001)">
+            </div>
+          </div>
+        </div>
+
+        <!-- PART 3: CONTINUOUS AUDIO RECORDING, LIVE TRANSCRIPT & 'FIND' WORKSPACE -->
+        <div class="police-card part-card part3-ai-card">
+          <div class="card-header navy-header flex-between">
+            <div class="chat-header-title">
+              <span class="part-badge">Part 3</span>
+              <span class="agent-avatar-icon">👮‍♂️</span>
+              <div>
+                <h2>Continuous Audio Recording & AI Intake Workspace</h2>
+                <span class="chat-header-sub">Continuous Uninterrupted Audio • Live Multilingual Transcription • Interactive FIND Mechanism</span>
+              </div>
+            </div>
+            <div id="caseTypeHeaderBadge" class="case-type-pill" style="display: none;">
+              <span class="case-pill-icon">🚨</span>
+              <span id="caseTypeHeaderLabel">THEFT (Sec 303 BNS)</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+
+            <!-- Continuous Audio Recording Console: Explicit Start and Stop Controls -->
+            <div class="audio-console-bar">
+              <div class="audio-controls-row">
+                <!-- Explicit Start Recording Button -->
+                <button type="button" id="btnStartRecord" class="btn-audio-record btn-start-rec" onclick="startContinuousRecording()" title="Begin continuous start-to-stop audio recording">
+                  <span class="mic-icon-circle">▶</span>
+                  <span id="startBtnLabel">Start Recording</span>
+                </button>
+
+                <!-- Explicit Stop Recording Button -->
+                <button type="button" id="btnStopRecord" class="btn-audio-record btn-stop-rec" onclick="stopContinuousRecording()" disabled title="Stop and finalize the continuous audio recording session">
+                  <span class="mic-icon-circle">⏹</span>
+                  <span id="stopBtnLabel">Stop Recording</span>
+                </button>
+
+                <!-- Continuous Recording Live Status Indicator -->
+                <div id="recPulseIndicator" class="rec-status-indicator idle">
+                  <span class="pulse-ring"></span>
+                  <span class="pulse-dot"></span>
+                  <span id="recStatusText" class="rec-status-text">Standby</span>
+                </div>
+
+                <!-- Session Timer -->
+                <div class="rec-timer-badge">
+                  <span class="timer-icon">⏱️</span>
+                  <span id="recTimerDisplay" class="font-mono">00:00</span>
+                </div>
+
+                <!-- Language Selection -->
+                <div class="lang-select-group">
+                  <label for="voiceLanguage">Speech Lang:</label>
+                  <select id="voiceLanguage" class="lang-select">
+                    <option value="ta-IN" selected>Tamil (தமிழ் - India)</option>
+                    <option value="en-IN">English (India)</option>
+                    <option value="en-US">English (US)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Audio Target Info & Writer Formula Helper Row -->
+              <div class="audio-session-info-bar">
+                <div class="target-file-info">
+                  <span class="target-icon">📁</span>
+                  <span>Audio Archive:</span>
+                  <code id="singleAudioTargetBadge">static/uploads/audio/POL-[REF_ID].webm</code>
+                </div>
+                <div class="audio-mode-tag">
+                  <span>⏺ Uninterrupted Continuous Audio (No Auto-Pause)</span>
+                </div>
+                <button type="button" id="btnReciteIntro" class="btn-oral-intro" onclick="applyWriterIntroFormula()" title="Load Station Duty Writer oral registration intro formula">
+                  🎙️ Recite Writer Intro
+                </button>
+              </div>
+
+              <!-- Live Feedback Telemetry -->
+              <div id="voiceStatus" class="voice-feedback-bar">
+                Ready to record. Click <strong>'Start Recording'</strong> to begin continuous dialogue capture.
+              </div>
+            </div>
+
+            <!-- Live Speech-to-Text Transcription Stream & Interactive FIND Section -->
+            <div class="transcript-stream-card">
+              <div class="transcript-header flex-between">
+                <div class="stream-title">
+                  <span class="pulse-live-icon">🔴</span>
+                  <strong>Live Speech-to-Text Transcription Stream</strong>
+                  <span class="stream-sub">(Tamil / Tanglish / English Speech Captured Live)</span>
+                </div>
+                <button type="button" id="btnClearTranscript" class="btn-clear-transcript" onclick="clearTranscriptStream()" title="Clear transcription text">
+                  Clear
+                </button>
+              </div>
+
+              <div class="transcript-body">
+                <textarea id="chatStatementInput" class="chat-textarea live-transcript-textarea" rows="3" placeholder="Continuous speech transcript streams here in real-time as the officer and complainant speak... Click 'FIND' at any moment during or after speech to extract entities and reveal questions!" onkeydown="handleChatInputKeyDown(event)"></textarea>
+              </div>
+
+              <!-- THE PROMINENT 'FIND' BUTTON -->
+              <div class="find-action-row">
+                <button type="button" id="btnFind" class="btn-find-prominent" onclick="triggerFindAnalysis()" title="Extract entities from current transcript and generate follow-up questions for the writer">
+                  <span class="find-icon">🔍</span>
+                  <div class="find-text-group">
+                    <span class="find-main-label">FIND</span>
+                    <span class="find-sub-label">Extract Entities &amp; Missing Questions (0% Hallucination)</span>
+                  </div>
+                  <span class="find-badge">Instant AI Parse</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Conversational AI Agent Guidance Feed & Missing Info Chips -->
+            <div class="chat-workspace-box">
+              <div class="chat-feed-title">
+                <span>👮‍♂️ Police AI Co-Pilot &amp; Follow-up Question Feed:</span>
+              </div>
+              
+              <!-- Chat Stream Thread -->
+              <div id="agentChatThread" class="chat-thread-container">
+                
+                <!-- Initial Welcome Message from AI Agent -->
+                <div class="chat-bubble-row agent-row">
+                  <div class="chat-avatar agent-avatar">AI</div>
+                  <div class="chat-bubble agent-bubble">
+                    <div class="bubble-header">
+                      <strong>Police AI Intake Agent</strong>
+                      <span class="bubble-time" id="agentInitTime">Ready</span>
+                    </div>
+                    <div class="bubble-content">
+                      Vanakkam / Greetings Officer! Interactive Continuous Intake is ready.
+                      <ul>
+                        <li>Click <strong>"Start Recording"</strong> to start continuous audio capture. The entire conversation runs continuously without interruption into a single audio file.</li>
+                        <li>Speech in Tamil, Tanglish, or English will stream live into the transcription box above.</li>
+                        <li>Click the prominent <strong>"🔍 FIND"</strong> button at <em>any point</em> to parse accumulated facts, classify the offence, and reveal missing questions to ask next.</li>
+                        <li>Ask the complainant the suggested questions, and click <strong>"🔍 FIND"</strong> iteratively as more details are provided!</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Typing / Processing Indicator -->
+              <div id="agentTypingIndicator" class="typing-indicator-row" style="display: none;">
+                <div class="chat-avatar agent-avatar">AI</div>
+                <div class="typing-bubble">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-text">AI analyzing transcript & extracting facts with 0% hallucination...</span>
+                </div>
+              </div>
+
+              <!-- Bottom Action Toolbar: Finalize & Merge -->
+              <div class="chat-input-toolbar">
+                <div class="chat-action-banner">
+                  <span class="action-hint">When statement is fully recorded, finalize the complaint draft:</span>
+                </div>
+                <div class="chat-btn-group">
+                  <button type="button" id="btnSendMerge" class="btn-chat-send btn-send-merge-primary" onclick="triggerSendAndMerge()" title="Finalize intake narrative, ensure audio is saved, and update Right Review Panel">
+                    <span class="btn-icon">⚡</span>
+                    <strong>Send & Merge / Finalize Draft</strong>
+                  </button>
+                  <button type="button" id="btnClearChatInput" class="btn-chat-clear" onclick="clearChatInput()" title="Reset workspace fields">
+                    Reset Input
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           RIGHT COLUMN: LIVE EXTRACTION & REVIEW PANE
+           (COMPLETELY HIDDEN BY DEFAULT - UNHIDDEN ON "FIND" OR "SEND & MERGE")
+           ===================================================== -->
+      <section class="col-right hidden" id="rightReviewSection" style="display: none;">
+
+        <!-- Extracted Crime Matrix Card -->
+        <div class="police-card">
+          <div class="card-header navy-header">
+            <h2>🔍 Live Extracted Crime Entities (0% Hallucination)</h2>
+          </div>
+          <div class="card-body">
+
+            <div class="entities-grid">
+              <div class="entity-badge-box">
+                <div class="entity-title">Incident Category</div>
+                <div class="entity-content not-mentioned" id="entIncidentType">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box">
+                <div class="entity-title">Occurrence Date</div>
+                <div class="entity-content not-mentioned" id="entDate">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box">
+                <div class="entity-title">Occurrence Time</div>
+                <div class="entity-content not-mentioned" id="entTime">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box">
+                <div class="entity-title">Scene / Location</div>
+                <div class="entity-content not-mentioned" id="entLocation">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box full-width">
+                <div class="entity-title">Property / Objects Involved</div>
+                <div class="entity-content not-mentioned" id="entObject">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box">
+                <div class="entity-title">Suspect / Person</div>
+                <div class="entity-content not-mentioned" id="entSuspect">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box">
+                <div class="entity-title">Suspect Description</div>
+                <div class="entity-content not-mentioned" id="entDescription">Not mentioned</div>
+              </div>
+
+              <div class="entity-badge-box full-width">
+                <div class="entity-title">Factual Synopsis</div>
+                <div class="entity-content not-mentioned" id="entSynopsis">Awaiting statement analysis...</div>
+              </div>
+            </div>
+
+            <!-- AI Recommended Follow-up Questions Alert Box -->
+            <div id="missingInfoBox" class="missing-info-box" style="display: none;">
+              <div class="missing-info-header">
+                <span>⚠️ Missing Critical Information — Questions for Complainant:</span>
+              </div>
+              <div id="missingQuestionsContainer"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Official Legal Draft & Review Card -->
+        <div class="police-card">
+          <div class="card-header">
+            <h3>📝 Official Police Complaint Draft (CSR / FIR Format)</h3>
+          </div>
+          <div class="card-body">
+
+            <div class="form-group">
+              <label for="complaintDraft">Editable Formal English Legal Draft (Writer Verified)</label>
+              <textarea id="complaintDraft" name="reviewedDraftArea" data-testid="reviewedDraftArea" class="form-control" rows="11" placeholder="The structured English legal draft compiled from the citizen's statement will appear here. The duty writer may review, verify, and edit details directly..."></textarea>
+            </div>
+
+            <!-- Complainant Digital Verification & Signature Pad -->
+            <div class="complainant-sig-box">
+              <label class="section-sub-label">Complainant Verification & Signature Pad</label>
+              <div class="canvas-container complainant-canvas-box">
+                <canvas id="complainantSignatureCanvas"></canvas>
+              </div>
+              <div class="canvas-toolbar">
+                <div class="canvas-actions">
+                  <button type="button" id="btnClearComplainantSig" class="btn-canvas" onclick="clearComplainantSignature()">Clear Pad</button>
+                  <button type="button" id="btnUndoComplainantSig" class="btn-canvas" onclick="undoComplainantSignature()">Undo</button>
+                </div>
+                <span id="complainantCanvasStatus" class="canvas-status">Draw citizen signature above</span>
+              </div>
+            </div>
+
+            <!-- Signature Preview Thumbnail Row -->
+            <div class="signature-preview-row">
+              <img id="sigPreviewThumb" class="sig-preview-thumb" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='40'><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='%2394a3b8' font-size='10'>No Signature</text></svg>" alt="Signature Preview">
+              <div class="sig-preview-label">
+                <strong>Electronic Complainant Verification</strong>
+                <span>Synced live from digital canvas. Will be embedded in ReportLab PDF.</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons Toolbar -->
+            <div class="action-toolbar">
+              <button type="button" id="btnSaveDraft" class="btn-action btn-draft" onclick="saveComplaintRecord('Draft')" title="Save editable draft to database">
+                📝 Save Draft
+              </button>
+
+              <button type="button" id="btnSaveRecord" class="btn-action btn-save" onclick="saveComplaintRecord('Saved')" title="Save and Register complaint record (CSR)">
+                💾 Save Record
+              </button>
+
+              <button type="button" id="btnExportPdf" class="btn-action btn-pdf" onclick="exportPDF()" title="Download official ReportLab PDF">
+                📄 Export PDF
+              </button>
+
+              <button type="button" id="btnPrintComplaint" class="btn-action btn-print" onclick="printComplaint()" title="Print direct copy">
+                🖨️ Direct Print
+              </button>
+
+              <button type="button" id="btnOpenCopilot" class="btn-action btn-copilot" onclick="openCopilotModal()" title="Ask Indian Police AI Co-Pilot">
+                🤖 AI Co-Pilot
+              </button>
+
+              <button type="button" id="btnResetWorkspace" class="btn-action btn-reset" onclick="resetWorkspace()" title="Start fresh registration">
+                🔄 Reset
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- =======================================================
+       INTERACTIVE AI CO-PILOT CHAT MODAL
+       ======================================================= -->
+  <div id="copilotModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>🤖 Police Legal & Procedural Co-Pilot</h3>
+        <button type="button" id="btnCloseCopilotModal" class="btn-close-modal" onclick="closeCopilotModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="copilotChatMessages" class="chat-message-list">
+          <div class="chat-bubble copilot">
+            <strong>Greetings, Officer!</strong><br/>
+            I am your Station Legal & Procedural Co-Pilot. Ask me regarding:
+            <ul>
+              <li>Applicable sections of Bharatiya Nyaya Sanhita (BNS) 2023 or IPC</li>
+              <li>CSR vs. FIR registration criteria under Section 173 BNSS</li>
+              <li>Evidence checklist (IMEI tracking via CEIR, CCTV, Medical memo)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" id="copilotChatInput" class="form-control" placeholder="Ask legal question (e.g. 'What section applies to mobile theft?')" onkeydown="if(event.key==='Enter') sendCopilotMessage();">
+        <button type="button" id="btnSendCopilotMsg" class="btn-action btn-copilot" onclick="sendCopilotMessage()" style="flex: 0 0 80px;">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       ALERT TOAST NOTIFICATION CONTAINER
+       ======================================================= -->
+  <div id="toastNotification">Notification message</div>
+
+  <!-- =======================================================
+       FOOTER
+       ======================================================= -->
+  <footer class="police-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>Police Complaint Documentation System</strong> | M.Tech Final Year Capstone Project
+      </div>
+      <div>
+        <span>Tamil Nadu Police Automated Documentation Initiative • Zero-Hallucination Dual-LLM & Rule Engine</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

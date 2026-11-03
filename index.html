@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Complaint Documentation System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Police Complaint Documentation System</h1>
+        <p>AI-Assisted Complaint Registration – MVP</p>
+    </header>
+
+    <main>
+
+        <section class="card">
+            <h2>Complaint Registration</h2>
+
+            <form id="complaintForm">
+
+                <div class="form-group">
+                    <label for="name">Complainant Name</label>
+                    <input type="text" id="name"
+                           placeholder="Enter complainant name">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Contact Number</label>
+                    <input type="tel" id="phone"
+                           placeholder="Enter contact number">
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label for="date">Date of Incident</label>
+                        <input type="date" id="date">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time">Time of Incident</label>
+                        <input type="time" id="time">
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location of Incident</label>
+                    <input type="text" id="location"
+                           placeholder="Enter incident location">
+                </div>
+
+             <div class="form-group">
+
+    <label for="complaint">Complaint Statement</label>
+
+    <textarea id="complaint"
+              rows="7"
+              placeholder="Type the complaint or use voice input..."></textarea>
+
+    <div class="voice-controls">
+
+        <button type="button"
+                id="startVoiceBtn"
+                class="voice-btn"
+                onclick="startVoiceInput()">
+            🎤 Start Voice Input
+        </button>
+
+        <button type="button"
+                id="stopVoiceBtn"
+                class="stop-btn"
+                onclick="stopVoiceInput()"
+                >
+            ⏹ Stop
+        </button>
+
+    </div>
+
+    <p id="voiceStatus" class="voice-status">
+        Voice input is ready.
+    </p>
+
+</div>
+
+                <p id="errorMessage"></p>
+
+                <div class="button-group">
+                    <button type="button"
+                            onclick="processComplaint()"
+                            class="primary-btn">
+                        Process Complaint
+                    </button>
+
+                    <button type="button"
+                            onclick="clearComplaint()"
+                            class="secondary-btn">
+                        Clear
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+
+       <section class="card preview-card" id="previewSection" style="display: none;">
+
+    <h2>Complaint Preview</h2>
+
+    <div id="preview">
+
+        <p class="empty-message">
+            Processed complaint details will appear here.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="card extracted-section" id="extractedSection" style="display: none;">
+
+    <h2>🔍 Extracted Information</h2>
+
+    <div id="extractedInfo">
+
+        <p>
+            Process a complaint to see extracted information.
+        </p>
+
+    </div>
+
+</section>
+
+<section class="card missing-info-section" id="missingSection" style="display: none;">
+
+    <h2>⚠ Missing Information & Writer Questions</h2>
+
+    <p class="review-info">
+        The system does not assume missing information.
+        It suggests questions for the Writer to ask the complainant.
+    </p>
+
+    <div id="missingInfo">
+
+        <p>
+            Process a complaint to identify missing information.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="card review-card" id="reviewSection" style="display: none;">
+
+    <h2>Writer Review & Approval</h2>
+
+    <p class="review-info">
+        Review the complaint carefully before approval.
+        The Writer is responsible for verifying the information.
+    </p>
+
+    <div class="form-group">
+
+        <label for="reviewComplaint">
+            Complaint Draft
+        </label>
+
+        <textarea id="reviewComplaint"
+                  rows="8"
+                  placeholder="The processed complaint draft will appear here..."></textarea>
+
+    </div>
+
+    <div class="verification-box">
+
+        <strong>Verification Rule</strong>
+
+        <p>
+            Verify that every statement matches the complainant's
+            original statement. Do not add unsupported facts.
+        </p>
+
+    </div>
+
+    <button type="button"
+            onclick="approveComplaint()"
+            class="approve-btn">
+
+        Approve Complaint
+
+    </button>
+
+    <p id="approvalStatus"></p>
+
+</section>
+
+    </main>
+
+
+    <footer>
+        <p>Police Complaint Documentation System | MVP Project</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

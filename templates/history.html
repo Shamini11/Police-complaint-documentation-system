@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Police Records & CSR Archive | Police Complaint Documentation System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- =======================================================
+       POLICE HEADER & STATUS BAR
+       ======================================================= -->
+  <header class="police-header">
+    <div class="header-inner">
+      <div class="police-branding">
+        <div class="police-insignia">📂</div>
+        <div class="brand-text">
+          <h1>Police Records & CSR Archive Dashboard</h1>
+          <p>{{ district_name }} • {{ station_name }}</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="badge badge-time" id="systemClock">--:--:--</div>
+        <a href="/" class="nav-link-btn" title="Return to Complaint Intake Workspace">
+          ➕ New Complaint Registration
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- =======================================================
+       DASHBOARD MAIN CONTAINER
+       ======================================================= -->
+  <main class="main-wrapper">
+
+    <!-- KPI Analytics Cards Grid -->
+    <div class="history-stats-grid">
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-title">Total Records Lodged</div>
+          <div class="kpi-val" id="kpiTotalComplaints">0</div>
+        </div>
+        <div class="kpi-icon">📁</div>
+      </div>
+
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-title">Draft Records</div>
+          <div class="kpi-val" id="kpiPendingDrafts" style="color: #b45309;">0</div>
+        </div>
+        <div class="kpi-icon">📝</div>
+      </div>
+
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-title">Saved Records</div>
+          <div class="kpi-val" id="kpiTotalSaved" style="color: #1e40af;">0</div>
+        </div>
+        <div class="kpi-icon">💾</div>
+      </div>
+
+      <div class="kpi-card">
+        <div>
+          <div class="kpi-title">Approved / Finalized</div>
+          <div class="kpi-val" id="kpiTotalApproved" style="color: #16a34a;">0</div>
+        </div>
+        <div class="kpi-icon">✅</div>
+      </div>
+    </div>
+
+    <!-- Categorization Tabs Navigation -->
+    <div class="categorization-tabs-nav">
+      <button type="button" class="tab-btn active" data-status="ALL" onclick="switchCategoryTab('ALL', this)">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">All Records</span>
+        <span class="tab-badge" id="tabBadgeAll">0</span>
+      </button>
+
+      <button type="button" class="tab-btn" data-status="DRAFT" onclick="switchCategoryTab('DRAFT', this)">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label">Drafts</span>
+        <span class="tab-badge badge-draft" id="tabBadgeDrafts">0</span>
+      </button>
+
+      <button type="button" class="tab-btn" data-status="SAVED" onclick="switchCategoryTab('SAVED', this)">
+        <span class="tab-icon">💾</span>
+        <span class="tab-label">Saved</span>
+        <span class="tab-badge badge-saved" id="tabBadgeSaved">0</span>
+      </button>
+
+      <button type="button" class="tab-btn" data-status="APPROVED" onclick="switchCategoryTab('APPROVED', this)">
+        <span class="tab-icon">✅</span>
+        <span class="tab-label">Approved / Finalized</span>
+        <span class="tab-badge badge-approved" id="tabBadgeApproved">0</span>
+      </button>
+    </div>
+
+    <!-- Search & Category Filter Toolbar -->
+    <div class="history-toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="historySearchInput" placeholder="Search by Reference ID (e.g. POL-...), Complainant Name, Phone Number, Incident Category, Writer ID...">
+      </div>
+
+      <div class="toolbar-filter-group">
+        <label for="historyCategorySelect" class="filter-label">Category:</label>
+        <select id="historyCategorySelect" class="category-select">
+          <option value="ALL">All Categories</option>
+          <option value="Theft">Theft / Burglary</option>
+          <option value="Lost Property">Lost Property</option>
+          <option value="Chain">Chain / Property Snatching</option>
+          <option value="Assault">Assault / Physical Attack</option>
+          <option value="Cyber">Cyber Financial Fraud / Cheating</option>
+          <option value="Property Dispute">Property Dispute</option>
+          <option value="Harassment">Harassment / Threat</option>
+          <option value="Road Traffic Accident">Road Traffic Accident</option>
+          <option value="Missing Person">Missing Person</option>
+          <option value="General">General / Others</option>
+        </select>
+
+        <button type="button" class="btn-table-action" onclick="resetHistoryFilters()" title="Reset all search & filters">
+          🔄 Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Complaint Records Table Card -->
+    <div class="police-card">
+      <div class="card-header navy-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📋 Station Community Service Register (CSR) Log</h2>
+        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">SQLite Synchronized Live</span>
+      </div>
+      <div class="card-body" style="padding: 0; overflow-x: auto;">
+
+        <table class="police-table" id="complaintsTable">
+          <thead>
+            <tr>
+              <th style="width: 170px;">Reference ID</th>
+              <th style="width: 140px;">Lodged On</th>
+              <th>Complainant Info</th>
+              <th>Incident & Scene</th>
+              <th style="width: 135px;">Duty Writer</th>
+              <th style="width: 110px;">Status</th>
+              <th style="width: 250px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="complaintsTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 24px; color: #64748b;">
+                Loading records from SQLite database...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =======================================================
+       RECORD INSPECTION MODAL
+       ======================================================= -->
+  <div id="detailsModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>📄 Police Complaint Record Dossier</h3>
+        <button type="button" class="btn-close-modal" onclick="closeDetailsModal()">✕</button>
+      </div>
+      <div class="modal-body" id="detailsModalContent">
+        <i>Loading complaint details...</i>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       FOOTER
+       ======================================================= -->
+  <footer class="police-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>Police Complaint Documentation System</strong> | M.Tech Final Year Capstone Project
+      </div>
+      <div>
+        <span>Tamil Nadu Police Automated Documentation Initiative</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/js/api.js"></script>
+</body>
+</html>

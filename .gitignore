@@ -1,0 +1,28 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & secrets (Protects API keys and passes GitHub secret scanning)
+.env
+.env.local
+
+# SQLite Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded test audio blobs
+static/uploads/audio/*.webm
+static/uploads/audio/*.wav
+!static/uploads/audio/.gitkeep
+
+# Temporary / Scratch test scripts
+scratch/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
